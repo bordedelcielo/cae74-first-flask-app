@@ -56,7 +56,7 @@ def pokemon():
             if name_of_pokemon == "":
                 error_string_poke="Please enter the name of a Pokemon"
                 return render_template('pokemon.html.j2', error = error_string_poke)
-            name = response.json()["name"]
+            name = response.json()["name"].title()
             hp = response.json()["stats"][0]["base_stat"]
             attack = response.json()["stats"][1]["base_stat"]
             defense = response.json()["stats"][2]["base_stat"]
