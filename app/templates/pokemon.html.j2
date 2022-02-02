@@ -1,0 +1,51 @@
+{% extends 'base.html.j2' %}
+
+{% block title %}
+I want to be the very best, that no one ever was 🎶
+{% endblock %}
+
+{% block content %}
+To train them is my caaaauuuse
+
+    <h1>Catch a Pokemon?</h1>
+    <form method="POST" action="/pokemon">
+    <div class="mb-3">
+        <label for="pokemon_name" class="form-label">Name of Pokemon you would like to catch! 🎣</label>
+        <input type="text" name="pokemon_name" class="form-control" id="pokemon_name">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+        <small style="color:red">{{error}}</small>
+    <br>
+    {% if name %}
+        <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+            <th scope="col">Name of Pokemon</th>
+            <th scope="col">HP</th>
+            <th scope="col">Attack</th>
+            <th scope="col">Defense</th>
+            <th scope="col">Ability</th>
+            <th scope="col">Sprite</th>
+            <th scope="col">Catch this Pokemon? 🎣</th>
+            </tr> 
+        </thead>
+        <tbody>
+                <tr>
+                    <th scope="row">{{name}}</th>
+                    <td>{{hp}}</td>
+                    <td>{{attack}}</td>
+                    <td>{{defense}}</td>      
+                    <td>{{ability}}</td>
+                    <td>{{sprite}}</td>
+                    <td><button type="submit" class ="btn btn-primary">Yes</button></td>
+                </tr>
+        </tbody>
+        </table>
+    {% else %}
+    Please search a Pokemon, friend
+    {% endif %}
+
+{% endblock %}

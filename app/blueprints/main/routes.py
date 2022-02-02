@@ -46,3 +46,24 @@ def ergast():
             # The request fail
     return render_template('ergast.html.j2')
 
+@main.route('/pokemon', methods=['GET', 'POST'])
+def pokemon():
+    if request.method == 'POST':
+        name_of_pokemon = request.form.get('pokemon_name')
+        url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
+        response = requests.request("GET", url)
+        if response.ok:
+            if name_of_pokemon == "":
+                error_string_poke="Please enter the name of a Pokemon"
+                return render_template('pokemon.html.j2', error = error_string_poke)
+            name = response.json()["name"]
+            hp = response.json()["stats"][0]["base_stat"]
+            attack = response.json()["stats"][1]["base_stat"]
+            defense = response.json()["stats"][2]["base_stat"]
+            ability = response.json()["abilities"][0]["ability"]["name"]
+            sprite = response.json()["sprites"]["front_shiny"]
+            return render_template('pokemon.html.j2', name=name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite)
+        else:
+            error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
+            return render_template('pokemon.html.j2', error = error_string)
+    return render_template('pokemon.html.j2')
