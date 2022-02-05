@@ -143,3 +143,22 @@ class Post(db.Model):
     
     def __repr__(self):
         return f'<id:{self.id} | Post: {self.body[:15]}>'
+
+class Pokemon(db.Model):
+    name = db.Column(db.String, primary_key=True)
+    hp = db.Column(db.Integer)
+    attack = db.Column(db.Integer)
+    defense = db.Column(db.Integer)
+    ability = db.Column(db.String)
+    sprite = db.Column(db.String)
+    date_added = db.Column(db.DateTime, default = dt.utcnow)
+    added_by_user = db.Column(db.String)
+
+    def __init__(self, name, hp, attack, defense, ability, sprite, date_added='', added_by_user=''):
+        self.name = name
+        self.hp = hp
+        self.attack = attack
+        self.defense = defense
+        self.ability = ability
+        self.sprite = sprite
+        self.added_by_user = added_by_user

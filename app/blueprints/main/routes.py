@@ -2,8 +2,11 @@ from flask import render_template, request
 import requests
 from flask_login import login_required
 from .import bp as main
+from app.models import db, Pokemon
 
+from app.secrets import con
 
+cursor = con.cursor()
 
 @main.route('/students', methods = ['GET'])
 @login_required
@@ -50,22 +53,57 @@ def ergast():
 def pokemon():
     if request.method == 'POST':
         name_of_pokemon = request.form.get('pokemon_name').lower()
-        url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
-        response = requests.request("GET", url)
-        if response.ok:
-            if name_of_pokemon == "":
-                error_string_poke="Please enter the name of a Pokemon"
-                return render_template('pokemon.html.j2', error = error_string_poke)
-            name = response.json()["name"].title()
-            hp = response.json()["stats"][0]["base_stat"]
-            attack = response.json()["stats"][1]["base_stat"]
-            defense = response.json()["stats"][2]["base_stat"]
-            ability = response.json()["abilities"][0]["ability"]["name"]
-            sprite = response.json()["sprites"]["front_shiny"]
-            pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
-            print(pokemon_dictionary)
-            return render_template('pokemon.html.j2', name=name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite)
+        cursor.execute(f"select name from pokemon where name = '{name_of_pokemon.title()}'")
+        result = cursor.fetchall()
+        if result != []:
+            test_name = result[0][0]
+            cursor.execute(f"select hp from pokemon where name = '{test_name}'")
+            hp = cursor.fetchall()[0][0]
+            cursor.execute(f"select attack from pokemon where name = '{test_name}'")
+            attack = cursor.fetchall()[0][0]
+            cursor.execute(f"select defense from pokemon where name = '{test_name}'")
+            defense = cursor.fetchall()[0][0]
+            cursor.execute(f"select ability from pokemon where name = '{test_name}'")
+            ability = cursor.fetchall()[0][0]
+            cursor.execute(f"select sprite from pokemon where name = '{test_name}'")
+            sprite = cursor.fetchall()[0][0]
+            return render_template('pokemon.html.j2', name=test_name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite)
         else:
-            error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
-            return render_template('pokemon.html.j2', error = error_string)
+            url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
+            response = requests.request("GET", url)
+            if response.ok:
+                if name_of_pokemon == "":
+                    error_string_poke="Please enter the name of a Pokemon"
+                    return render_template('pokemon.html.j2', error = error_string_poke)
+                name = response.json()["name"].title()
+                hp = response.json()["stats"][0]["base_stat"]
+                attack = response.json()["stats"][1]["base_stat"]
+                defense = response.json()["stats"][2]["base_stat"]
+                ability = response.json()["abilities"][0]["ability"]["name"]
+                sprite = response.json()["sprites"]["front_shiny"]
+
+                entry = Pokemon(name, hp, attack, defense, ability, sprite)
+
+                db.session.add(entry)
+                db.session.commit()
+
+                pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
+                # print(pokemon_dictionary)
+                return render_template('pokemon.html.j2', name=name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite, pokemon_dictionary = pokemon_dictionary)
+
+            else:
+                error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
+                return render_template('pokemon.html.j2', error = error_string)
     return render_template('pokemon.html.j2')
+
+    # You may have to stringify the dictionary... Keep an eye out for that.
+
+@main.route('/addPoke/', methods = ['GET', 'POST'])
+def addPoke():
+    return render_template('pokemon.html.j2')
+# def addPoke(name, hp, attack, defense, ability, sprite):
+#     if request.method == 'POST':
+#         name = request.form[]
+#     pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
+#     print(pokemon_dictionary)
+#     db.session.commit()
