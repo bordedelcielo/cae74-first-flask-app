@@ -4,6 +4,7 @@ from datetime import datetime as dt, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login
 import secrets
+import uuid
 
 followers = db.Table(
     'followers',
@@ -11,7 +12,19 @@ followers = db.Table(
     db.Column('followed_id',db.Integer, db.ForeignKey('user.id'))
 )
 
+# User_Pokemon = db.Table(
+#     'User_Pokemon',
+#     db.Column('user_id', db.String, db.ForeignKey('user.id')),
+#     db.Column('pokemon_id', db.String, db.ForeignKey('pokemon.id'))
+# )
+
+association_table = db.Table('association',
+    db.Column('left_id', db.ForeignKey('user.id')),
+    db.Column('right_id', db.ForeignKey('pokemon.id'))
+)
+
 class User(UserMixin, db.Model):
+    __tablename__ = 'left'
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
@@ -27,6 +40,8 @@ class User(UserMixin, db.Model):
                     backref=db.backref('followers',lazy='dynamic'),
                     lazy='dynamic'
                     )
+    my_pokemon = db.relationship("Pokemon",
+                    secondary=association_table)
     token = db.Column(db.String, index=True, unique=True)
     token_exp = db.Column(db.DateTime)
     is_admin = db.Column(db.Boolean, default=False)
@@ -145,7 +160,9 @@ class Post(db.Model):
         return f'<id:{self.id} | Post: {self.body[:15]}>'
 
 class Pokemon(db.Model):
-    name = db.Column(db.String, primary_key=True)
+    __tablename__ = 'right'
+    id = db.Column(db.String, primary_key = True)
+    name = db.Column(db.String)
     hp = db.Column(db.Integer)
     attack = db.Column(db.Integer)
     defense = db.Column(db.Integer)
@@ -154,7 +171,8 @@ class Pokemon(db.Model):
     date_added = db.Column(db.DateTime, default = dt.utcnow)
     added_by_user = db.Column(db.String)
 
-    def __init__(self, name, hp, attack, defense, ability, sprite, date_added='', added_by_user=''):
+    def __init__(self, name, hp, attack, defense, ability, sprite, id='', date_added='', added_by_user=''):
+        self.id = self.set_id()
         self.name = name
         self.hp = hp
         self.attack = attack
@@ -162,3 +180,6 @@ class Pokemon(db.Model):
         self.ability = ability
         self.sprite = sprite
         self.added_by_user = added_by_user
+
+    def set_id(self):
+        return str(uuid.uuid4())

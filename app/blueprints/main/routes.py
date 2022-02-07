@@ -107,3 +107,9 @@ def addPoke():
 #     pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
 #     print(pokemon_dictionary)
 #     db.session.commit()
+
+# @main.route('/remove/<id>/', methods = ['GET', 'POST'])
+# def remove(id):
+#     my_data = Pokemon.query.get(id)
+#     db.session.delete(my_data)
+#     db.session.commit()
