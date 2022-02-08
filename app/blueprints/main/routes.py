@@ -1,8 +1,8 @@
-from flask import render_template, request
+from flask import render_template, request, session
 import requests
 from flask_login import login_required
 from .import bp as main
-from app.models import db, Pokemon
+from app.models import db, Pokemon, association_table, User
 
 from app.secrets import con
 
@@ -67,6 +67,20 @@ def pokemon():
             ability = cursor.fetchall()[0][0]
             cursor.execute(f"select sprite from pokemon where name = '{test_name}'")
             sprite = cursor.fetchall()[0][0]
+            
+            cursor.execute(f"select the_pokemon_id from pokemon where name = '{test_name}'")
+            the_pokemon_id = cursor.fetchall()[0][0]
+            cursor.execute(f"select pokemon_id from association where pokemon_id = '{the_pokemon_id}'")
+            result = cursor.fetchall()
+            if result == []:
+                id = session["_user_id"]
+
+                statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
+                db.session.execute(statement)
+                db.session.commit()
+            else:
+                pass
+
             return render_template('pokemon.html.j2', name=test_name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite)
         else:
             url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
@@ -85,6 +99,13 @@ def pokemon():
                 entry = Pokemon(name, hp, attack, defense, ability, sprite)
 
                 db.session.add(entry)
+                db.session.commit()
+
+                id = session["_user_id"]
+                cursor.execute(f"select the_pokemon_id from pokemon where name = '{name}'")
+                the_pokemon_id = cursor.fetchall()[0][0]
+                statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
+                db.session.execute(statement)
                 db.session.commit()
 
                 pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}

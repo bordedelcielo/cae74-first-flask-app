@@ -40,7 +40,8 @@ class User(UserMixin, db.Model):
                     )
     children = relationship("Pokemon",
                     secondary=association_table, 
-                    backref="users")
+                    backref="users"
+                    )
                     
     token = db.Column(db.String, index=True, unique=True)
     token_exp = db.Column(db.DateTime)
@@ -90,6 +91,9 @@ class User(UserMixin, db.Model):
         if self.is_following(user):
             self.followed.remove(user)
             db.session.commit()
+
+    # Catch a Pokemon
+
 
     # get all the posts from the users I am following
     def followed_posts(self):
