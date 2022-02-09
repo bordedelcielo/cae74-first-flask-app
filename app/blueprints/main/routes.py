@@ -51,6 +51,9 @@ def ergast():
 
 @main.route('/pokemon', methods=['GET', 'POST'])
 def pokemon():
+    id = session["_user_id"]
+    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+    data = cursor.fetchall()
     if request.method == 'POST':
         name_of_pokemon = request.form.get('pokemon_name').lower()
         cursor.execute(f"select name from pokemon where name = '{name_of_pokemon.title()}'")
@@ -70,25 +73,38 @@ def pokemon():
             
             cursor.execute(f"select the_pokemon_id from pokemon where name = '{test_name}'")
             the_pokemon_id = cursor.fetchall()[0][0]
-            cursor.execute(f"select pokemon_id from association where pokemon_id = '{the_pokemon_id}'")
+            id = session["_user_id"]
+            cursor.execute(f"select pokemon_id from association where pokemon_id = '{the_pokemon_id}' and user_id = '{2}'")
             result = cursor.fetchall()
-            if result == []:
+            cursor.execute(f"SELECT count(*) FROM association WHERE user_id = '{id}';")
+            count_result = cursor.fetchall()[0][0]
+            cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+            data = cursor.fetchall()
+            if count_result >= 5:
+                error_string = f'You have already caught five Pokemon. Please remove a Pokemon from your inventory to make room to catch {test_name}.'
+                return render_template('pokemon.html.j2', data=data, error = error_string)
+            elif result == [] and count_result < 5:
                 id = session["_user_id"]
-
                 statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
                 db.session.execute(statement)
                 db.session.commit()
+                cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+                data = cursor.fetchall()
             else:
+                cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+                data = cursor.fetchall()
                 pass
 
-            return render_template('pokemon.html.j2', name=test_name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite)
+            return render_template('pokemon.html.j2', name=test_name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite, data=data)
         else:
             url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
             response = requests.request("GET", url)
             if response.ok:
                 if name_of_pokemon == "":
                     error_string_poke="Please enter the name of a Pokemon"
-                    return render_template('pokemon.html.j2', error = error_string_poke)
+                    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+                    data = cursor.fetchall()
+                    return render_template('pokemon.html.j2', data=data, error = error_string_poke)
                 name = response.json()["name"].title()
                 hp = response.json()["stats"][0]["base_stat"]
                 attack = response.json()["stats"][1]["base_stat"]
@@ -102,22 +118,43 @@ def pokemon():
                 db.session.commit()
 
                 id = session["_user_id"]
-                cursor.execute(f"select the_pokemon_id from pokemon where name = '{name}'")
-                the_pokemon_id = cursor.fetchall()[0][0]
-                statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
-                db.session.execute(statement)
-                db.session.commit()
+                cursor.execute(f"SELECT count(*) FROM association WHERE user_id = '{id}';")
+                count_result = cursor.fetchall()[0][0]
+                cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+                data = cursor.fetchall()
+
+                if count_result >= 5:
+                    error_string = f'You have already caught five Pokemon. Please remove a Pokemon from your inventory to make room to catch {name}.'
+                    return render_template('pokemon.html.j2', data=data, error = error_string)
+                else:
+                    id = session["_user_id"]
+                    cursor.execute(f"select the_pokemon_id from pokemon where name = '{name}'")
+                    the_pokemon_id = cursor.fetchall()[0][0]
+                    statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
+                    db.session.execute(statement)
+                    db.session.commit()
 
                 pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
                 # print(pokemon_dictionary)
-                return render_template('pokemon.html.j2', name=name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite, pokemon_dictionary = pokemon_dictionary)
+                return render_template('pokemon.html.j2', data=data, name=name, hp=hp, attack=attack, defense=defense,ability=ability,sprite=sprite, pokemon_dictionary = pokemon_dictionary)
 
             else:
                 error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
                 return render_template('pokemon.html.j2', error = error_string)
-    return render_template('pokemon.html.j2')
+    return render_template('pokemon.html.j2', data=data)
 
     # You may have to stringify the dictionary... Keep an eye out for that.
+
+@main.route('/delete/<id>', methods = ['GET', 'POST'])
+def delete(id):
+    cursor.execute(f"DELETE FROM association where pokemon_id = '{id}'")
+
+    id = session["_user_id"]
+    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+    data = cursor.fetchall()
+
+    return render_template('pokemon.html.j2', data=data)
+
 
 @main.route('/addPoke/', methods = ['GET', 'POST'])
 def addPoke():

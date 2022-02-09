@@ -40,7 +40,7 @@ To train them is my caaaauuuse
                     <td>{{attack}}</td>
                     <td>{{defense}}</td>      
                     <td>{{ability}}</td>
-                    <td>{{sprite}}</td>
+                    <td><img src="{{sprite}}"></td>
                     <td><a href="{{url_for('main.addPoke')}}" class ="btn btn-primary">Catch {{name}}!</button></td>
                 </tr>
         </tbody>
@@ -48,5 +48,38 @@ To train them is my caaaauuuse
     {% else %}
     Please search a Pokemon, friend
     {% endif %}
+
+    {% if data[0] == Null %}
+    <p>You have not caught any Pokemon yet.</p>
+    {% else %}
+
+    <table class="table table-borderless">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Sprite</th>
+                <th scope="col">HP</th>
+                <th scope="col">Attack</th>
+                <th scope="col">Defense</th>
+                <th scope="col">Main Ability</th>
+                <th scope="col">Remove this Pokemon?</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for row in data %}
+            <tr>
+                <td scope="row">{{ row[1] }}</td>
+                <td><img src="{{ row[6] }}"></td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td><a href="/delete/{{row[0]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this Pokemon from your pokedex?')">Delete</td>
+            </tr>
+    {% endfor %}
+    {% endif %}
+        </tbody>
+    </table>
+    
 
 {% endblock %}
