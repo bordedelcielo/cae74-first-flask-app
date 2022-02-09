@@ -147,10 +147,9 @@ def pokemon():
 
 @main.route('/delete/<id>', methods = ['GET', 'POST'])
 def delete(id):
-    cursor.execute(f"DELETE FROM association where pokemon_id = '{id}'")
-
-    id = session["_user_id"]
-    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
+    session_id = session["_user_id"]
+    cursor.execute(f"DELETE FROM association where pokemon_id = '{id}' and user_id = '{session_id}'")
+    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{session_id}';")
     data = cursor.fetchall()
 
     return render_template('pokemon.html.j2', data=data)
