@@ -20,7 +20,12 @@ Welcome to the arena 🤺
     {% for row in data %}
             <tr>
                 <td scope="row">{{ row[0] }}</td>
-                <td><img src="{{ row[6] }}"></td>
+                <td>
+                    {% for i in dictionary[row[1]] %}
+                    <img src="{{ i[1] }}">
+                    {# {{ dictionary }} #}
+                    {% endfor %}
+                </td>
                 <td><a href="/challenge/{{row[0]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to challenge this player?')">Challenge {{ row[0] }}</td>
                 <td>Placeholder value for number of wins</td>
             </tr>
