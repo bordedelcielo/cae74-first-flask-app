@@ -3,6 +3,7 @@ import requests
 from flask_login import login_required
 from .import bp as main
 from app.models import db, Pokemon, association_table, User
+import uuid
 
 from app.secrets import con
 
@@ -60,13 +61,14 @@ def pokemon():
         name_of_pokemon = request.form.get('pokemon_name').lower()
         cursor.execute(f"select the_pokemon_id from pokemon where name = '{name_of_pokemon.title()}'")
         result = cursor.fetchall()
-        print(f'Here is the result: {result[0][0]}')
         if result != []:
-            pass
+            the_pokemon_id = result[0][0]
         else:
             url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
             response = requests.request("GET", url)
             if response.ok:
+                # You need to set the id here so that it is available on line 90. Move it from the models to here.
+                the_pokemon_id = str(uuid.uuid4())
                 name = response.json()["name"].title()
                 hp = response.json()["stats"][0]["base_stat"]
                 attack = response.json()["stats"][1]["base_stat"]
@@ -74,15 +76,17 @@ def pokemon():
                 ability = response.json()["abilities"][0]["ability"]["name"]
                 sprite = response.json()["sprites"]["front_shiny"]
 
-                entry = Pokemon(name, hp, attack, defense, ability, sprite)
+                entry = Pokemon(the_pokemon_id, name, hp, attack, defense, ability, sprite)
 
                 db.session.add(entry)
                 db.session.commit()
+
+                cursor.execute(f"select the_pokemon_id from pokemon where name = '{name_of_pokemon.title()}'")
+                result = cursor.fetchall()
             else:
                 error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
                 return render_template('pokemon.html.j2', data=data, error = error_string)
-        the_pokemon_id = result[0][0]
-        print(f'Here is the_pokemon_id: {result[0][0]}')
+        print(f'Here is the_pokemon_id: {the_pokemon_id}')
         statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
         db.session.execute(statement)
         db.session.commit()

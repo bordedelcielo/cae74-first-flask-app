@@ -174,8 +174,8 @@ class Pokemon(db.Model):
     date_added = db.Column(db.DateTime, default = dt.utcnow)
     added_by_user = db.Column(db.String)
 
-    def __init__(self, name, hp, attack, defense, ability, sprite, id='', date_added='', added_by_user=''):
-        self.the_pokemon_id = self.set_id()
+    def __init__(self, the_pokemon_id, name, hp, attack, defense, ability, sprite, date_added='', added_by_user=''):
+        self.the_pokemon_id = the_pokemon_id
         self.name = name
         self.hp = hp
         self.attack = attack
