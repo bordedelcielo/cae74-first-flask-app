@@ -32,13 +32,25 @@ def challenge(id_for_use):
     playerTwo = id_for_use
     dice = (1,2,3,4,5,6)
     playerOneDice = random.choice(dice)
+    print(playerOneDice)
     playerTwoDice = random.choice(dice)
+    print(playerTwoDice)
     cursor.execute(f"SELECT attack FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{playerOne}';")
     playerOneData = cursor.fetchall()
-    print(f"Here is player one's data: {playerOneData}")
-    cursor.execute(f"SELECT hp, defense FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE id = '{playerTwo}';")
+    total_attack = 0
+    for i in playerOneData:
+        print(f'Here is i: {i[0]}')
+        total_attack = total_attack + i[0] ** 2
+    total_attack = total_attack * playerOneDice
+    print(f'Here is the total attack: {total_attack}')
+    cursor.execute(f"SELECT hp, defense FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{playerTwo}';")
     playerTwoData = cursor.fetchall()
-    print(f"Here is player two's data: {playerTwoData}")
+    total_defense = 0
+    for j in playerTwoData:
+        print(f'Here is j: {j[0]} and {j[1]}')
+        total_defense = total_defense + j[0] * j[1]
+    total_defense = total_defense * playerTwoDice
+    print(f"Here is the total defense: {total_defense}")
     id = session["_user_id"]
     cursor.execute(f"SELECT first_name, id FROM public.user WHERE id <> '{id}'")
     data = cursor.fetchall()
