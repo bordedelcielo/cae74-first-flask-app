@@ -26,7 +26,7 @@ Welcome to the arena 🤺
                     {# {{ dictionary }} #}
                     {% endfor %}
                 </td>
-                <td><a href="/challenge/{{row[0]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to challenge {{row[0]}}?')">Challenge {{ row[0] }}</td>
+                <td><a href="/battle/challenge/{{row[1]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to challenge {{row[0]}}?')">Challenge {{ row[0] }}</td>
                 <td>Placeholder value for number of wins</td>
             </tr>
 
