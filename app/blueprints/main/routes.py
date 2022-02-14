@@ -106,14 +106,3 @@ def delete(id):
     data = cursor.fetchall()
 
     return render_template('pokemon.html.j2', data=data)
-
-
-@main.route('/addPoke/', methods = ['GET', 'POST'])
-def addPoke():
-    return render_template('pokemon.html.j2', data=[])
-# def addPoke(name, hp, attack, defense, ability, sprite):
-#     if request.method == 'POST':
-#         name = request.form[]
-#     pokemon_dictionary = {"Name":name, "Hp":hp, "Attack":attack,"Defense":defense,"Ability":ability,"Sprite":sprite}
-#     print(pokemon_dictionary)
-#     db.session.commit()
