@@ -130,8 +130,9 @@ class User(UserMixin, db.Model):
     def get_icon_url(self):
         return f'https://avatars.dicebear.com/api/bottts/{self.icon}.svg'
 
+    # This line of code controls what a User.query.get() returns.
     def __repr__(self):
-        return f'<User: {self.id} | {self.email}>'
+        return f'<User: {self.id} | {self.email} | {self.first_name}>'
 
 
 @login.user_loader
