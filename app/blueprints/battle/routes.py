@@ -66,7 +66,7 @@ def challenge(id_for_use):
         User.query.get(loser).losses += 1
     db.session.commit()
     id = session["_user_id"]
-    cursor.execute(f"SELECT first_name, id FROM public.user WHERE id <> '{id}'")
+    cursor.execute(f"SELECT first_name, id, wins FROM public.user WHERE id <> '{id}'")
     data = cursor.fetchall()
     output_dictionary = {}
     for row in data:
