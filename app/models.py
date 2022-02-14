@@ -24,6 +24,8 @@ followers = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, unique = True)
+    wins = db.Column(db.Integer, default = 0)
+    losses = db.Column(db.Integer, default = 0)
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
     email = db.Column(db.String(200), unique=True, index=True)

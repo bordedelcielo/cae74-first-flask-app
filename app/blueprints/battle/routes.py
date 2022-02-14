@@ -1,8 +1,7 @@
 from .import bp as battle
 from flask import render_template, session
 import random
-from app.models import User
-
+from app.models import User, db
 from app.secrets import con
 
 cursor = con.cursor()
@@ -10,7 +9,7 @@ cursor = con.cursor()
 @battle.route('/arena', methods = ['GET', 'POST'])
 def arena():
     id = session["_user_id"]
-    cursor.execute(f"SELECT first_name, id FROM public.user WHERE id <> '{id}'")
+    cursor.execute(f"SELECT first_name, id, wins FROM public.user WHERE id <> '{id}'")
     data = cursor.fetchall()
     output_dictionary = {}
     for row in data:
@@ -53,13 +52,19 @@ def challenge(id_for_use):
     total_defense = total_defense * playerTwoDice
     if total_defense >= total_attack:
         winner = playerTwo
-        print(f"Player Two is the winner.")
+        loser = playerOne
     else:
         winner = playerOne
-        print(f"Player One is the winner.")
-    print(f"Here is the total defense: {total_defense}")
-    print(User.query.get(winner))
-    print(User.query.get(winner).last_name)
+        loser = playerTwo
+    if type(User.query.get(winner).wins) != int:
+        User.query.get(winner).wins = 1
+    else:
+        User.query.get(winner).wins += 1
+    if type(User.query.get(loser).losses) != int:
+        User.query.get(loser).losses = 1
+    else:
+        User.query.get(loser).losses += 1
+    db.session.commit()
     id = session["_user_id"]
     cursor.execute(f"SELECT first_name, id FROM public.user WHERE id <> '{id}'")
     data = cursor.fetchall()
