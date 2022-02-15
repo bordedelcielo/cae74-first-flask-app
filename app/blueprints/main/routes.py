@@ -5,6 +5,8 @@ from .import bp as main
 from app.models import db, Pokemon, association_table, User
 import uuid
 
+from sqlalchemy import select
+
 from app.secrets import con
 
 cursor = con.cursor()
@@ -53,6 +55,11 @@ def ergast():
 @main.route('/pokemon', methods=['GET', 'POST'])
 def pokemon():
     id = session["_user_id"]
+    user = User.query.get(id)
+    print(user.children.all())
+    print([element.sprite for element in user.children.all()])
+    # print(user.email)
+
     cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
     data = cursor.fetchall()
     cursor.execute(f"SELECT count(*) FROM association WHERE user_id = '{id}';")
@@ -92,7 +99,7 @@ def pokemon():
         db.session.commit()
     cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
     data = cursor.fetchall()
-    return render_template('pokemon.html.j2', data=data, count_result=count_result)
+    return render_template('pokemon.html.j2', data=data, count_result=count_result, user=user)
 
     # You may have to stringify the dictionary... Keep an eye out for that.
 

@@ -40,9 +40,10 @@ class User(UserMixin, db.Model):
                     backref=db.backref('followers',lazy='dynamic'),
                     lazy='dynamic'
                     )
-    children = relationship("Pokemon",
+    children = db.relationship("Pokemon",
                     secondary=association_table, 
-                    backref="users"
+                    backref=db.backref("association_table", lazy = 'dynamic'),
+                    lazy = 'dynamic'
                     )
                     
     token = db.Column(db.String, index=True, unique=True)
@@ -132,9 +133,9 @@ class User(UserMixin, db.Model):
     def get_icon_url(self):
         return f'https://avatars.dicebear.com/api/bottts/{self.icon}.svg'
 
-    # This line of code controls what a User.query.get() returns.
-    def __repr__(self):
-        return f'<User: {self.id} | {self.email} | {self.first_name}>'
+    # # This line of code controls what a User.query.get() returns.
+    # def __repr__(self):
+    #     return f'<User: {self.id} | {self.email} | {self.first_name}>'
 
 
 @login.user_loader
