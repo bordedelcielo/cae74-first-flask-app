@@ -168,8 +168,8 @@ class Post(db.Model):
         return f'<id:{self.id} | Post: {self.body[:15]}>'
 
 class Pokemon(db.Model):
-    the_pokemon_id = db.Column(db.String, primary_key = True, unique = True)
-    name = db.Column(db.String, primary_key=True)
+    the_pokemon_id = db.Column(db.Integer, primary_key = True, unique = True)
+    name = db.Column(db.String)
     hp = db.Column(db.Integer)
     attack = db.Column(db.Integer)
     defense = db.Column(db.Integer)
@@ -178,8 +178,7 @@ class Pokemon(db.Model):
     date_added = db.Column(db.DateTime, default = dt.utcnow)
     added_by_user = db.Column(db.String)
 
-    def __init__(self, the_pokemon_id, name, hp, attack, defense, ability, sprite, date_added='', added_by_user=''):
-        self.the_pokemon_id = the_pokemon_id
+    def __init__(self, name, hp, attack, defense, ability, sprite, date_added='', added_by_user=''):
         self.name = name
         self.hp = hp
         self.attack = attack

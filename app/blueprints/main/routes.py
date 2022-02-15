@@ -56,26 +56,23 @@ def ergast():
 def pokemon():
     id = session["_user_id"]
     user = User.query.get(id)
-    print(user.children.all())
-    print([element.sprite for element in user.children.all()])
+    # print(user.children.all())
+    # print([element.sprite for element in user.children.all()])
     # print(user.email)
 
-    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
-    data = cursor.fetchall()
-    cursor.execute(f"SELECT count(*) FROM association WHERE user_id = '{id}';")
-    count_result = cursor.fetchall()[0][0]
     if request.method == 'POST':
         name_of_pokemon = request.form.get('pokemon_name').lower()
-        cursor.execute(f"select the_pokemon_id from pokemon where name = '{name_of_pokemon.title()}'")
-        result = cursor.fetchall()
-        if result != []:
-            the_pokemon_id = result[0][0]
-        else:
+        print(Pokemon.query.filter_by(name = name_of_pokemon.title()).all())
+        the_list = []
+        for item in Pokemon.query.filter_by(name = name_of_pokemon.title()).all():
+            the_list.append(item.name)
+        print(the_list)
+        if the_list == []:
+
+        # if name_of_pokemon.title() not in Pokemon.query.filter_by(name = name_of_pokemon.title()).all():
             url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
             response = requests.request("GET", url)
             if response.ok:
-                # You need to set the id here so that it is available on line 90. Move it from the models to here.
-                the_pokemon_id = str(uuid.uuid4())
                 name = response.json()["name"].title()
                 hp = response.json()["stats"][0]["base_stat"]
                 attack = response.json()["stats"][1]["base_stat"]
@@ -83,23 +80,21 @@ def pokemon():
                 ability = response.json()["abilities"][0]["ability"]["name"]
                 sprite = response.json()["sprites"]["front_shiny"]
 
-                entry = Pokemon(the_pokemon_id, name, hp, attack, defense, ability, sprite)
+                entry = Pokemon(name, hp, attack, defense, ability, sprite)
 
                 db.session.add(entry)
                 db.session.commit()
-
-                cursor.execute(f"select the_pokemon_id from pokemon where name = '{name_of_pokemon.title()}'")
-                result = cursor.fetchall()
             else:
                 error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
-                return render_template('pokemon.html.j2', data=data, error = error_string)
-        print(f'Here is the_pokemon_id: {the_pokemon_id}')
-        statement = association_table.insert().values(user_id = id, pokemon_id = the_pokemon_id)
-        db.session.execute(statement)
-        db.session.commit()
-    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{id}';")
-    data = cursor.fetchall()
-    return render_template('pokemon.html.j2', data=data, count_result=count_result, user=user)
+                return render_template('pokemon.html.j2', error = error_string)
+        else:
+            print(f"The list is not empty and its contents are as follows: {the_list}")
+    # else:
+            # print(Pokemon.query.filter_by(name = name_of_pokemon.title()).all()[0].name)
+
+
+
+    return render_template('pokemon.html.j2', user=user)
 
     # You may have to stringify the dictionary... Keep an eye out for that.
 
