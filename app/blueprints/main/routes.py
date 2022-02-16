@@ -55,6 +55,10 @@ def ergast():
 @main.route('/pokemon', methods=['GET', 'POST'])
 def pokemon():
 
+    id = session["_user_id"]
+    user = User.query.get(id)
+    children_list = [element for element in user.children.all()]
+
     if request.method == 'POST':
         name_of_pokemon = request.form.get('pokemon_name').lower()
         print(Pokemon.query.filter_by(name = name_of_pokemon.title()).all())
@@ -78,11 +82,9 @@ def pokemon():
                 db.session.commit()
             else:
                 error_string = f'Could not find Pokemon with name "{name_of_pokemon}". Please confirm your spelling is accurate.'
-                return render_template('pokemon.html.j2', error = error_string)
+                return render_template('pokemon.html.j2', children_list = children_list, error = error_string)
         else:
             print(f"The list is not empty and its contents are as follows: {the_list}")
-        id = session["_user_id"]
-        user = User.query.get(id)
         query = Pokemon.query.filter_by(name = name_of_pokemon.title()).first()
 
         if query not in user.children.all():
@@ -90,13 +92,12 @@ def pokemon():
             db.session.commit()
         else:
             print('The user has already caught this Pokemon.')
-        
     else:
         pass
-    children_list = [element.name for element in user.children.all()]
+    children_list = [element for element in user.children.all()]
     print(children_list)
 
-    return render_template('pokemon.html.j2')
+    return render_template('pokemon.html.j2', children_list = children_list)
 
     # You may have to stringify the dictionary... Keep an eye out for that.
 

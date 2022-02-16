@@ -49,7 +49,7 @@ To train them is my caaaauuuse
     Please search a Pokemon, friend
     {% endif %}
 
-    {# {% if data[0] == Null %}
+    {% if children_list == [] %}
     <p>You have not caught any Pokemon yet.</p>
     {% else %}
 
@@ -66,20 +66,20 @@ To train them is my caaaauuuse
             </tr>
         </thead>
         <tbody>
-    {% for row in data %}
+    {% for row in children_list %}
             <tr>
-                <td scope="row">{{ row[1] }}</td>
-                <td><img src="{{ row[6] }}"></td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>{{ row[4] }}</td>
-                <td>{{ row[5] }}</td>
-                <td><a href="/delete/{{row[0]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this Pokemon from your pokedex?')">Delete</td>
+                <td scope="row">{{ row.name }}</td>
+                <td><img src="{{ row.sprite }}"></td>
+                <td>{{ row.hp }}</td>
+                <td>{{ row.attack }}</td>
+                <td>{{ row.defense }}</td>
+                <td>{{ row.ability }}</td>
+                <td><a href="/delete/{{row}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this Pokemon from your pokedex?')">Delete</td>
             </tr>
     {% endfor %}
     {% endif %}
         </tbody>
-    </table> #}
+    </table>
     
 
 {% endblock %}
