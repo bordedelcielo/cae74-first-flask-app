@@ -17,17 +17,16 @@ Welcome to the arena 🤺
             </tr>
         </thead>
         <tbody>
-    {% for row in data %}
+    {% for row in user_list %}
             <tr>
-                <td scope="row">{{ row[0] }}</td>
+                <td scope="row">{{ row.id }}</td>
                 <td>
-                    {% for i in dictionary[row[1]] %}
-                    <img src="{{ i[1] }}">
-                    {# {{ dictionary }} #}
+                    {% for i in output_dictionary[row.first_name] %}
+                    <img src="{{ i }}">
                     {% endfor %}
                 </td>
-                <td><a href="/battle/challenge/{{row[1]}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to challenge {{row[0]}}?')">Challenge {{ row[0] }}</td>
-                <td>{{row[2]}}</td>
+                <td><a href="/battle/challenge/{{row.id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to challenge {{row.first_name}}?')">Challenge {{ row.first_name }}</td>
+                <td>{{row.wins}}</td>
             </tr>
 
 {% endfor %}
