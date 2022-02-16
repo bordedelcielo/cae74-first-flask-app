@@ -10,7 +10,6 @@ cursor = con.cursor()
 def arena():
     id = session["_user_id"]
     test = User.query.all()
-    print(test)
     output_dictionary = {}
     user_list = []
     for item in test:
@@ -25,52 +24,41 @@ def arena():
 
 @battle.route('/challenge/<id_for_use>', methods = ['GET', 'POST'])
 def challenge(id_for_use):
-    session_id = session["_user_id"]
-    playerOne = session_id
-    playerTwo = id_for_use
+
     dice = (1,2,3,4,5,6)
     playerOneDice = random.choice(dice)
-    print(playerOneDice)
     playerTwoDice = random.choice(dice)
-    print(playerTwoDice)
-    cursor.execute(f"SELECT attack FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{playerOne}';")
-    playerOneData = cursor.fetchall()
+
+    playerOneId = session["_user_id"]
+    playerTwoId = id_for_use
+
+    playerOne = User.query.get(playerOneId)
+    playerTwo = User.query.get(playerTwoId)
+
+    playerOnePokemon = User.query.get(playerOneId).children.all()
+    print(playerOnePokemon)
+    print(type(playerOnePokemon))
     total_attack = 0
-    for i in playerOneData:
-        print(f'Here is i: {i[0]}')
-        total_attack = total_attack + i[0] ** 2
+    for i in playerOnePokemon:
+        total_attack = total_attack + i.attack ** 2
     total_attack = total_attack * playerOneDice
-    print(f'Here is the total attack: {total_attack}')
-    cursor.execute(f"SELECT hp, defense FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{playerTwo}';")
-    playerTwoData = cursor.fetchall()
+    print(total_attack)
+
+    playerTwoPokemon = User.query.get(playerTwoId).children.all()
     total_defense = 0
-    for j in playerTwoData:
-        print(f'Here is j: {j[0]} and {j[1]}')
-        total_defense = total_defense + j[0] * j[1]
+    for i in playerTwoPokemon:
+        total_defense = total_defense + i.defense * i.hp
     total_defense = total_defense * playerTwoDice
-    if total_defense >= total_attack:
-        winner = playerTwo
-        loser = playerOne
+    print(total_defense)
+
+    if total_attack > total_defense:
+        playerOne.wins += 1
+        playerTwo.losses += 1
+        print(playerOne)
     else:
-        winner = playerOne
-        loser = playerTwo
-    if type(User.query.get(winner).wins) != int:
-        User.query.get(winner).wins = 1
-    else:
-        User.query.get(winner).wins += 1
-    if type(User.query.get(loser).losses) != int:
-        User.query.get(loser).losses = 1
-    else:
-        User.query.get(loser).losses += 1
+        playerTwo.wins += 1
+        playerOne.losses += 1
+        print(playerTwo)
     db.session.commit()
-    id = session["_user_id"]
-    cursor.execute(f"SELECT first_name, id, wins FROM public.user WHERE id <> '{id}'")
-    data = cursor.fetchall()
-    output_dictionary = {}
-    for row in data:
-        cursor.execute(f"SELECT name, sprite FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{row[1]}';")
-        poke_data = cursor.fetchall()
-        working_dictionary = {row[1]: poke_data}
-        # print(working_dictionary)
-        output_dictionary.update(working_dictionary)
-    return render_template('arena.html.j2', data=data, dictionary = output_dictionary)
+
+    return arena()
