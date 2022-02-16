@@ -74,7 +74,7 @@ To train them is my caaaauuuse
                 <td>{{ row.attack }}</td>
                 <td>{{ row.defense }}</td>
                 <td>{{ row.ability }}</td>
-                <td><a href="/delete/{{row}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this Pokemon from your pokedex?')">Delete</td>
+                <td><a href="/delete/{{row.the_pokemon_id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this Pokemon from your pokedex?')">Delete</td>
             </tr>
     {% endfor %}
     {% endif %}

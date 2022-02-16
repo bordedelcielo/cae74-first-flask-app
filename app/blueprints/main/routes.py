@@ -86,7 +86,6 @@ def pokemon():
         else:
             print(f"The list is not empty and its contents are as follows: {the_list}")
         query = Pokemon.query.filter_by(name = name_of_pokemon.title()).first()
-
         if query not in user.children.all():
             user.children.append(query)
             db.session.commit()
@@ -104,10 +103,8 @@ def pokemon():
 @main.route('/delete/<id>', methods = ['GET', 'POST'])
 def delete(id):
     session_id = session["_user_id"]
-    print(type(id))
-    db.session.execute(f"DELETE FROM association where pokemon_id = '{id}' and user_id = '{session_id}'")
-    db.session.commit()
-    cursor.execute(f"SELECT * FROM pokemon INNER JOIN association ON association.pokemon_id = pokemon.the_pokemon_id WHERE user_id = '{session_id}';")
-    data = cursor.fetchall()
-
-    return render_template('pokemon.html.j2', data=data)
+    user = User.query.get(session_id)
+    queried_pokemon = Pokemon.query.get(id)
+    print(queried_pokemon)
+    user.children.remove(queried_pokemon)
+    return pokemon()
