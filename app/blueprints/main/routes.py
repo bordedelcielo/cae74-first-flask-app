@@ -54,11 +54,6 @@ def ergast():
 
 @main.route('/pokemon', methods=['GET', 'POST'])
 def pokemon():
-    id = session["_user_id"]
-    user = User.query.get(id)
-    # print(user.children.all())
-    # print([element.sprite for element in user.children.all()])
-    # print(user.email)
 
     if request.method == 'POST':
         name_of_pokemon = request.form.get('pokemon_name').lower()
@@ -66,10 +61,7 @@ def pokemon():
         the_list = []
         for item in Pokemon.query.filter_by(name = name_of_pokemon.title()).all():
             the_list.append(item.name)
-        print(the_list)
         if the_list == []:
-
-        # if name_of_pokemon.title() not in Pokemon.query.filter_by(name = name_of_pokemon.title()).all():
             url = f"https://pokeapi.co/api/v2/pokemon/{name_of_pokemon}"
             response = requests.request("GET", url)
             if response.ok:
@@ -89,12 +81,22 @@ def pokemon():
                 return render_template('pokemon.html.j2', error = error_string)
         else:
             print(f"The list is not empty and its contents are as follows: {the_list}")
-    # else:
-            # print(Pokemon.query.filter_by(name = name_of_pokemon.title()).all()[0].name)
+        id = session["_user_id"]
+        user = User.query.get(id)
+        query = Pokemon.query.filter_by(name = name_of_pokemon.title()).first()
 
+        if query not in user.children.all():
+            user.children.append(query)
+            db.session.commit()
+        else:
+            print('The user has already caught this Pokemon.')
+        
+    else:
+        pass
+    children_list = [element.name for element in user.children.all()]
+    print(children_list)
 
-
-    return render_template('pokemon.html.j2', user=user)
+    return render_template('pokemon.html.j2')
 
     # You may have to stringify the dictionary... Keep an eye out for that.
 
