@@ -7,10 +7,6 @@ import uuid
 
 from sqlalchemy import select
 
-from app.secrets import con
-
-cursor = con.cursor()
-
 @main.route('/students', methods = ['GET'])
 @login_required
 def students():
