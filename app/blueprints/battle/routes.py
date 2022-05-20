@@ -2,9 +2,6 @@ from .import bp as battle
 from flask import render_template, session
 import random
 from app.models import User, db
-from app.secrets import con
-
-cursor = con.cursor()
 
 @battle.route('/arena', methods = ['GET', 'POST'])
 def arena():
